@@ -3,6 +3,7 @@ Bundler.setup(:default)
 require 'rmagick'
 require 'json'
 require 'open-uri'
+require 'twfy'
 
 class MPFacialRecognition
   def initialize
@@ -41,17 +42,18 @@ class MPFacialRecognition
   end
 
   def get_mp(mp_name)
-    found = false
-    @mps.each do |mp|
-      if mp["name"] == mp_name
-        image = Magick::ImageList.new
-        image.from_blob(open(mp["image"]).read)
-        image.resize!(40,60)
-        image.quantize(2, Magick::GRAYColorspace, false)
-        image.write("mono.jpg")
-        found = true
-      end
-    end
+    client = Twfy::Client.new("BG75QxG2F6ApGg9NgREGKPjd")
+    info = client.mps(search: mp_name)
+    info = info[0]
+    info = client.mp(id: info.person_id)
+    info = info[0]
+    url = info.image.to_s
+    image = Magick::ImageList.new
+    image.from_blob(open(url).read)
+    image.resize!(40,60)
+    image = image.quantize(2, Magick::GRAYColorspace, false)
+    image.write("image/#{mp_name}.jpg")
+    found = true
     return found
   end
 end
