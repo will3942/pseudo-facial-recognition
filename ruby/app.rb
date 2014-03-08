@@ -16,7 +16,7 @@ class MPFacialRecognition
       image = Magick::ImageList.new
       image.from_blob(open(mp["image"]).read)
       image.resize!(40,60)
-      image.quantize(2, GRAYColorspace, false)
+      image.quantize(2, Magick::GRAYColorspace, false)
       pixels = image.get_pixels(0,0,image.columns,image.rows)
       colors = Hash.new
       for pixel in pixels
@@ -38,5 +38,20 @@ class MPFacialRecognition
     else
       return detected
     end
+  end
+
+  def get_mp(mp_name)
+    found = false
+    @mps.each do |mp|
+      if mp["name"] == mp_name
+        image = Magick::ImageList.new
+        image.from_blob(open(mp["image"]).read)
+        image.resize!(40,60)
+        image.quantize(2, Magick::GRAYColorspace, false)
+        image.write("mono.jpg")
+        found = true
+      end
+    end
+    return found
   end
 end
