@@ -66,6 +66,7 @@ while true do
           puts "Successfully authenticated as #{mp[0][0]}"
           @sp.write "1"
           wait_enter
+          @sp.write "0"
           abort("Finished.")
         end
         vals.clear
