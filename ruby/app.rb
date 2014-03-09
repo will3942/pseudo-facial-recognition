@@ -12,31 +12,20 @@ class MPFacialRecognition
 
   def is_mp(black, ambient)
     detection = black.to_f / ambient.to_f * 100.0
+    p detection
     detected = Hash.new
     @mps.each do |mp|
-      image = Magick::ImageList.new
-      image.from_blob(open(mp["image"]).read)
-      image.resize!(40,60)
-      image.quantize(2, Magick::GRAYColorspace, false)
-      pixels = image.get_pixels(0,0,image.columns,image.rows)
-      colors = Hash.new
-      for pixel in pixels
-        if colors[pixel.to_color].nil?
-          colors[pixel.to_color] = 1
-        else
-          colors[pixel.to_color] = colors[pixel.to_color] + 1
+      if File.exist?("mp_conv/" + mp["id"] + ".json")
+        colors = JSON.parse(IO.read("mp_conv/" + mp["id"] + ".json"))
+        if ((detection.to_f-0.4)..detection.to_f).include?(colors["black"].to_f) or (detection.to_f..(detection.to_f + 0.4)).include?(colors["black"].to_f)
+          detected[mp["name"]] = colors["black"].to_f
         end
-      end
-      colors.each do |color|
-        colors[pixel.to_color] = colors[pixel.to_color].to_f / 2400.0 * 100.0
-      end
-      if ((detection.to_f-10.0)..detection.to_f).include?(colors["black"]) or (detection.to_f..(detection.to_f + 10.0)).include?(colors["black"])
-        detected[mp["name"]] = true
       end
     end
     if detected.nil?
       return false
     else
+      detected = detected.sort_by {|v| (v[1].to_f - detection.to_f).abs}
       return detected
     end
   end
@@ -55,5 +44,20 @@ class MPFacialRecognition
     image.write("image/#{mp_name}.jpg")
     found = true
     return found
+  end
+
+  def get_id(mp_id)
+    client = Twfy::Client.new("BG75QxG2F6ApGg9NgREGKPjd")
+    info = client.mp(id: mp_id)
+    info = info[0]
+    p info.full_name
+  end
+
+  def sorter(v, lol)
+    if v.to_f >= lol.to_f
+      v.to_f - lol.to_f
+    else
+      lol.to_f - v.to_f
+    end
   end
 end

@@ -1,5 +1,5 @@
 require './app'
 
 mp = MPFacialRecognition.new
-mp = mp.get_mp("David Cameron")
+mp = mp.get_mp(ARGV[0])
 p mp

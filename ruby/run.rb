@@ -36,7 +36,7 @@ puts "Ambient light value is #{@ambient}"
 
 while true do
   while (i = @sp.gets.chomp) do
-    if @ambient - i.to_i >= 15
+    if ((i.to_f - @ambient.to_f) / @ambient.to_f * 100.0).abs >= 20.0 and ((i.to_f - @ambient.to_f) / @ambient.to_f * 100.0) < 0.0
       p "detection"
       mp = MPFacialRecognition.new
       mp = mp.is_mp(i.to_i, @ambient)
