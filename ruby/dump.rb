@@ -27,9 +27,8 @@ client.mps.each do |mp|
   image = Magick::ImageList.new
   unless image_url == ""
     image.from_blob(open(image_url).read)
-    image.resize!(8,12)
-    image = image.quantize(2, Magick::GRAYColorspace, false)
-    pixels = image.get_pixels(0,0,image.columns,image.rows)
+    mono = image.quantize(2, Magick::GRAYColorspace, false)
+    pixels = mono.get_pixels(0,0,mono.columns,mono.rows)
     colors = Hash.new
     for pixel in pixels
       if colors[pixel.to_color].nil?
@@ -41,6 +40,8 @@ client.mps.each do |mp|
     colors.each do |color|
       colors[color[0]] = color[1].to_f / pixels.count.to_f * 100.0
     end
+    image.resize!(8,12)
+    image = image.quantize(2, Magick::GRAYColorspace, false)
     filename = File.basename(URI.parse(image_url).path)
     image.write("mp_conv/#{filename}")
     File.open("mp_conv/" + File.basename(filename, ".*")+".json", 'w') {|f| f.write("{\"black\":#{colors["black"]}, \"white\":0}") }

@@ -10,15 +10,17 @@ class MPFacialRecognition
     @mps = JSON.parse(IO.read("mps.json"))
   end
 
-  def is_mp(black, ambient)
+  def is_mp(black, ambient, mp_name)
     detection = black.to_f / ambient.to_f * 100.0
     p detection
     detected = Hash.new
     @mps.each do |mp|
-      if File.exist?("mp_conv/" + mp["id"] + ".json")
-        colors = JSON.parse(IO.read("mp_conv/" + mp["id"] + ".json"))
-        if ((detection.to_f-0.4)..detection.to_f).include?(colors["black"].to_f) or (detection.to_f..(detection.to_f + 0.4)).include?(colors["black"].to_f)
-          detected[mp["name"]] = colors["black"].to_f
+      if mp["name"].include?(mp_name)
+        if File.exist?("mp_conv/" + mp["id"] + ".json")
+          colors = JSON.parse(IO.read("mp_conv/" + mp["id"] + ".json"))
+          if ((detection.to_f-2.0)..detection.to_f).include?(colors["black"].to_f) or (detection.to_f..(detection.to_f + 2.0)).include?(colors["black"].to_f)
+            detected[mp["name"]] = colors["black"].to_f
+          end
         end
       end
     end
