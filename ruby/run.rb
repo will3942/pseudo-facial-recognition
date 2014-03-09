@@ -40,13 +40,19 @@ def get_input(str)
   end
 end
 
-ask_question ("Hold white paper over sensor for 10 seconds.")
+def wait_enter
+  print "Press enter to finish. "
+  input = STDIN.gets.chomp
+end
+
+ask_question("Place white paper over sensor for 10 seconds.")
 @ambient = @ambient.to_i
 puts "Ambient light value is #{@ambient}"
 vals = Array.new
 s = 0
 name = get_input("Please enter your name (FirstName LastName)")
-puts "Please hold ID on sensor."
+puts "Please place ID on sensor."
+@sp.write "0"
 
 while true do
   while (i = @sp.gets.chomp) do
@@ -57,9 +63,10 @@ while true do
         mp = MPFacialRecognition.new
         mp = mp.is_mp(mean, @ambient, name)
         unless mp.empty?
-          p mp
-          puts "Successfully authenticated as #{mp[0]}"
-          abort("Finished!")
+          puts "Successfully authenticated as #{mp[0][0]}"
+          @sp.write "1"
+          wait_enter
+          abort("Finished.")
         end
         vals.clear
         s = 0
